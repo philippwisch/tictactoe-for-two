@@ -1,0 +1,19 @@
+#gameboard {
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 5px 1fr 5px 1fr;
+    grid-template-rows: 1fr 5px 1fr 5px 1fr;
+    width: 300px;
+    height: 300px;
+}
+
+.seperator {
+    background-color: black;
+}
+
+.box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 64px;
+}
