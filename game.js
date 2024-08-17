@@ -18,11 +18,15 @@ class Game {
         [3, 5, 7]
     ]
 
+    static pickRandomPlayer() {
+        return Math.random() < 0.5 ? "X" : "O";
+    }
+
     constructor(startingPlayer) {
         // keeps track of where players put "X" and "O". Looks like: {1: "X", 7: "O", 2: "X"}
         this.gameState = {};
         // if the starting player is not provided or is not 'X' or 'O', it picks a random player as a fallback
-        this.playerTurn = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : this.pickRandomPlayer();
+        this.playerTurn = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : Game.pickRandomPlayer();
     }
 
     takeTurn(player, fieldIndex) {
@@ -87,11 +91,6 @@ class Game {
 
         return true;
     }
-
-    pickRandomPlayer() {
-        return Math.random() < 0.5 ? "X" : "O";
-    }
-
 }
 
 module.exports = Game;
