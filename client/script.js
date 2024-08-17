@@ -1,4 +1,5 @@
-import { Game } from './shared/game.js';
+
+import { Game } from '../shared/game.js';
 
 window.onload = function () {
     const socket = io();
@@ -44,6 +45,8 @@ window.onload = function () {
 
     socket.on('player move', (player, move) => {
         boxes[move - 1].innerHTML = player;
+        game.takeTurn(player, move);
+        updateTop();
     })
 
     function clearGameboard() {
@@ -53,8 +56,8 @@ window.onload = function () {
     }
 
     function updateTop() {
-        // display who's turn it is
-        if (whoAmI === game.activePlayer) {
+        // display whose turn it is
+        if (whoAmI === game.currentTurnPlayer) {
             top.innerHTML = "Your turn";
         } else {
             top.innerHTML = "Opponent's turn";
