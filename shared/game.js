@@ -4,7 +4,7 @@
 // 4, 5, 6
 // 7, 8, 9
 
-class Game {
+export class Game {
     static winConditions = [
         [1, 2, 3],
         [4, 5, 6],
@@ -29,23 +29,23 @@ class Game {
     constructor(startingPlayer = undefined) {
         // keeps track of where players put "X" and "O". Looks like: {1: "X", 7: "O", 2: "X"}
         this.gameState = {};
+        this.gameOver = false;
+        this.winner = null;
         // if the starting player is not provided or is not 'X' or 'O', it picks a random player as a fallback
         this.currentTurnPlayer = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : Game.pickRandomPlayer();
     }
 
     takeTurn(player, fieldIndex) {
-        let valid, gameOver, winner;
-
-        valid = this.isValidTurn(player, fieldIndex);
+        let valid = this.isValidTurn(player, fieldIndex);
 
         if (valid) {
             this.gameState[fieldIndex] = player;
-            winner = this.checkForWinner();
+            this.winner = this.checkForWinner();
 
-            if (winner) {
-                gameOver = true;
+            if (this.winner) {
+                this.gameOver = true;
             } else {
-                gameOver = this.isGameboardFull();
+                this.gameOver = this.isGameboardFull();
             }
 
             // after player 1 takes their turn, it's player 2's turn
@@ -54,8 +54,8 @@ class Game {
 
         return {
             valid,
-            gameOver,
-            winner
+            gameOver: this.gameOver,
+            winner: this.winner
         }
     }
 
@@ -84,6 +84,8 @@ class Game {
     }
 
     isValidTurn(player, fieldIndex) {
+        // if the game is over
+        if (this.gameOver) return false;
         // if the player is not assigned either 'O' or 'X'
         if (!(player === 'X' || player === 'O')) return false;
         // if it's not that player's turn
@@ -96,5 +98,3 @@ class Game {
         return true;
     }
 }
-
-module.exports = Game;

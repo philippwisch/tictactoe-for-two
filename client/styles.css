@@ -1,3 +1,17 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
 #gameboard {
     margin: auto;
     display: grid;
@@ -16,4 +30,9 @@
     justify-content: center;
     align-items: center;
     font-size: 64px;
+}
+
+#top, #bottom {
+    font-size: 32px;
+    padding: 16px;
 }

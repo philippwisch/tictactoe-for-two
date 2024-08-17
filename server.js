@@ -1,11 +1,14 @@
-// require statements
-const express = require("express");
-const path = require("path");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
-const Game = require("./game.js");
+// import statements
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { Game } from './shared/game.js';
 
 // server variables
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express()
 const server = createServer(app);
 const io = new Server(server);
@@ -18,9 +21,10 @@ const port = 12345
 //////////////////
 
 app.use(express.static(path.join(__dirname, "client")));
+app.use('/shared', express.static(path.join(__dirname, "shared")));
 
 app.get("/", (req, res) => {
-    res.sendFile("index.html");
+    res.sendFile(path.join(__dirname, 'client', 'index.html'));
 })
 
 server.listen(port, () => {
@@ -56,14 +60,19 @@ io.on("connection", (socket => {
     })
 
     socket.on("declare move", move => {
-        console.log(move);
-        // TODO
-        // check if its valid (ie there is nothing in there yet, its the users turn) (also check the same thing client side)
-        // then check if the user wins
-        // then check if the game is over
-        // then add w/l to w/l counter if needed
-        // start new game immediately
-        // socket.emit("player move", PLAYERID_X_OR_O, BOARDGAMEINDEX)
+        if(!currentGame) return;
+        
+        const player = players.get(socket).role;
+        let result = currentGame.takeTurn(player, move);
+
+        console.log(result);
+        if(result.valid) {
+            io.emit('player move', player, move);
+
+            if(result.gameOver || result.winner) {
+                // handle gameOver here
+            }
+        }
     })
 }))
 
@@ -95,8 +104,8 @@ function startGame() {
     }
 
     // alternate starting player every round
-    this.currentTurnPlayer = Game.getOpponent(whoStartedGameround);
-    currentGame = new Game(whoStartedGameround);
+    let startingPlayer = Game.getOpponent(whoStartedGameround);
+    currentGame = new Game(startingPlayer);
 
     players.forEach((player) => {
         player.socket.emit("game start", player.role, currentGame.currentTurnPlayer);
@@ -104,5 +113,5 @@ function startGame() {
 }
 
 function endGame() {
-    io.emit("game end", "Your opponent left. Waiting for new player...");
+    io.emit("opponent left", "Your opponent left. Waiting for new player...");
 }
