@@ -22,11 +22,15 @@ class Game {
         return Math.random() < 0.5 ? "X" : "O";
     }
 
-    constructor(startingPlayer) {
+    static getOpponent(player) {
+        return player === 'X' ? 'O' : 'X';
+    }
+
+    constructor(startingPlayer = undefined) {
         // keeps track of where players put "X" and "O". Looks like: {1: "X", 7: "O", 2: "X"}
         this.gameState = {};
         // if the starting player is not provided or is not 'X' or 'O', it picks a random player as a fallback
-        this.playerTurn = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : Game.pickRandomPlayer();
+        this.currentTurnPlayer = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : Game.pickRandomPlayer();
     }
 
     takeTurn(player, fieldIndex) {
@@ -45,7 +49,7 @@ class Game {
             }
 
             // after player 1 takes their turn, it's player 2's turn
-            this.playerTurn = player === 'X' ? 'O' : 'X';
+            this.currentTurnPlayer = Game.getOpponent(player);
         }
 
         return {
@@ -83,7 +87,7 @@ class Game {
         // if the player is not assigned either 'O' or 'X'
         if (!(player === 'X' || player === 'O')) return false;
         // if it's not that player's turn
-        if (this.playerTurn !== player) return false;
+        if (this.currentTurnPlayer !== player) return false;
         // if the field has already been taken by a player, it can't be taken anymore
         if (this.gameState[fieldIndex]) return false;
         // if the field's index is outside the field (outside 1-9)
