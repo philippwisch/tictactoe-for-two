@@ -1,7 +1,7 @@
 html,
 body {
-    height: 100%;
     margin: 0;
+    padding: 0;
 }
 
 body {
@@ -9,11 +9,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
 }
 
 #gameboard {
-    margin: auto;
     display: grid;
     grid-template-columns: 1fr 5px 1fr 5px 1fr;
     grid-template-rows: 1fr 5px 1fr 5px 1fr;
@@ -34,5 +32,5 @@ body {
 
 #top, #bottom {
     font-size: 32px;
-    padding: 16px;
+    padding:32px;
 }
