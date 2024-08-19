@@ -50,7 +50,7 @@ io.on("connection", (socket => {
     }
 
     if (players.size === 2) {
-        startGame();
+        startNewGame();
     }
 
     socket.on("disconnect", () => {
@@ -60,16 +60,21 @@ io.on("connection", (socket => {
     })
 
     socket.on("declare move", move => {
+        // DEBUG //
         console.log("declare move: " + move);
         if(!currentGame) return;
         
         const player = players.get(socket).role;
         let result = currentGame.takeTurn(player, move);
 
-        console.log(result);
+        // DEBUG //
+        console.log("result from last turn: " + result);
+
         if(result.valid) {
-            io.emit('player move', player, move, result.roundOver, result.winner);
-            // TODO if roundOver, start new round
+            io.emit('player move', player, move, result.roundOver, result.winner, Game.getOpponent(whoStartedGameround));
+            if (result.roundOver) {
+                setupNewRound();
+            }
         }
     })
 }))
@@ -96,18 +101,21 @@ function removePlayer(socket) {
     players.delete(socket);
 }
 
-function startGame() {
+function startNewGame() {
+    setupNewRound();
+    players.forEach((player) => {
+        player.socket.emit("game start", player.role, whoStartedGameround);
+    })
+}
+
+function setupNewRound() {
     if (!whoStartedGameround) {
         whoStartedGameround = Game.pickRandomPlayer();
     }
 
     // alternate starting player every round
-    let startingPlayer = Game.getOpponent(whoStartedGameround);
-    currentGame = new Game(startingPlayer);
-
-    players.forEach((player) => {
-        player.socket.emit("game start", player.role, currentGame.currentTurnPlayer);
-    })
+    whoStartedGameround = Game.getOpponent(whoStartedGameround);
+    currentGame = new Game(whoStartedGameround);
 }
 
 function endGame() {

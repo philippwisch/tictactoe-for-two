@@ -15,8 +15,11 @@ window.onload = function () {
 
     boxes.forEach(box => {
         box.addEventListener('click', (event) => {
-            // check if the move would be valid, to avoid sending unnecessary requests
-            if (game.isValidTurn(whoAmI, event.target.id)) {
+            // because the "game" object gets created WHEN a game starts (ie two players connected) and not before that,
+            // if only one player is connected, the game object could be undefined.
+            // That's why the optional chaining operator (? at game?) is used here
+            if (game?.isValidTurn(whoAmI, event.target.id)) {
+                // Check if the move would be valid, to avoid sending unnecessary requests
                 socket.emit('declare move', event.target.id);
             }
         })
@@ -32,27 +35,35 @@ window.onload = function () {
         top.innerHTML = msg;
     })
 
-    socket.on('game start', (role, activePlayer) => {
+    socket.on('game start', (role, startingPlayer) => {
         console.log("game start");
-        game = new Game(activePlayer);
-        whoAmI = role;
-
-        clearGameboard();
-        updateWhoseTurnDisplay();
+        whoAmI = role; // 'X' or 'O' - does not change between game rounds
+        startNewRound(startingPlayer);
     });
 
-    socket.on('player move', (player, move, roundOver, winner) => {
-        console.log("player move: " + player + " " + move + " " + roundOver + " " + winner);
+    // TODO split this function up for better readability
+    socket.on('player move', (player, move, roundOver, winner, nextRoundStartingPlayer) => {
+        console.log("player move: " + player + " " + move + " " + roundOver + " " + winner + " " + nextRoundStartingPlayer);
         // sync local gamestate with server's gamestate
         game.takeTurn(player, move);
-        boxes[move - 1].innerHTML = player;
+        // display move on the gameboard
+        const box = Array.from(boxes).find(box => box.id === move);
+        if(box) box.innerHTML = player;
 
         if (roundOver) {
-            // TODO handle roundover
+            // TODO wait 1 second here to display game board for a second before starting the next round
+            startNewRound(nextRoundStartingPlayer);
         } else {
             updateWhoseTurnDisplay();
         }
     })
+
+    function startNewRound(startingPlayer) {
+        game = new Game(startingPlayer);
+
+        clearGameboard();
+        updateWhoseTurnDisplay();
+    }
 
     function clearGameboard() {
         boxes.forEach(box => {
@@ -61,11 +72,7 @@ window.onload = function () {
     }
 
     function updateWhoseTurnDisplay() {
-        // display whose turn it is
-        if (whoAmI === game.currentTurnPlayer) {
-            top.innerHTML = "Your turn";
-        } else {
-            top.innerHTML = "Opponent's turn";
-        }
+        // display whose turn it is in the top section of the webpage
+        top.innerHTML = (whoAmI === game.currentTurnPlayer) ? "Your turn" : "Opponent's turn";
     }
 }
