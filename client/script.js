@@ -51,8 +51,12 @@ window.onload = function () {
         if(box) box.innerHTML = player;
 
         if (roundOver) {
-            // TODO wait 1 second here to display game board for a second before starting the next round
-            startNewRound(nextRoundStartingPlayer);
+            // display who won the round or if it was a draw
+            updateWhoWonDisplay(winner);
+            updateWinsLossesDisplay(winner);
+            // wait 1 second before starting the next round
+            // to display results for a short moment
+            setTimeout(() => startNewRound(nextRoundStartingPlayer), 1000);
         } else {
             updateWhoseTurnDisplay();
         }
@@ -73,6 +77,27 @@ window.onload = function () {
 
     function updateWhoseTurnDisplay() {
         // display whose turn it is in the top section of the webpage
-        top.innerHTML = (whoAmI === game.currentTurnPlayer) ? "Your turn" : "Opponent's turn";
+        let opponent = Game.getOpponent(whoAmI);
+        top.innerHTML = (whoAmI === game.currentTurnPlayer) ? `Your turn (${whoAmI})` : `Opponent's turn (${opponent})`;
+    }
+
+    function updateWhoWonDisplay(winner) {
+        if (winner) {
+            let text = (winner === whoAmI) ? "You win!" : "Your opponent wins!";
+            top.innerHTML = text;
+        } else {
+            top.innerHTML = "Draw!";
+        }
+    }
+
+    function updateWinsLossesDisplay(winner) {
+        if(winner) {
+            if(winner === whoAmI) {
+                wins++;
+            } else {
+                losses++;
+            }
+            bottom.innerHTML = `Wins: ${wins} | Losses: ${losses}`;
+        }
     }
 }
