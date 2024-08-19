@@ -6,16 +6,16 @@
 
 export class Game {
     static winConditions = [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
-
-        [1, 4, 7],
-        [2, 5, 8],
-        [3, 6, 9],
-
-        [1, 5, 9],
-        [3, 5, 7]
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+    
+        ["1", "4", "7"],
+        ["2", "5", "8"],
+        ["3", "6", "9"],
+    
+        ["1", "5", "9"],
+        ["3", "5", "7"]
     ]
 
     static pickRandomPlayer() {
@@ -28,7 +28,7 @@ export class Game {
 
     constructor(startingPlayer = undefined) {
         // keeps track of where players put "X" and "O". Looks like: {1: "X", 7: "O", 2: "X"}
-        this.gameState = {};
+        this.gameState = new Map();
         this.roundOver = false;
         this.winner = null;
         // if the starting player is not provided or is not 'X' or 'O', it picks a random player as a fallback
@@ -39,7 +39,7 @@ export class Game {
         let valid = this.isValidTurn(player, fieldIndex);
 
         if (valid) {
-            this.gameState[fieldIndex] = player;
+            this.gameState.set(fieldIndex, player);
             this.winner = this.checkForWinner();
 
             if (this.winner) {
@@ -60,6 +60,7 @@ export class Game {
     }
 
     checkForWinner() {
+
         for (const condition of Game.winConditions) {
             let xCount = 0;
             let oCount = 0;
@@ -68,8 +69,8 @@ export class Game {
             // ie the first wincondition it checks for is [1,2,3], which is 3 in-a-row in the first row.
             // the check for [1,5,9] would be diagonal from top left to bottom right
             for (const index of condition) {
-                if (this.gameState[index] === 'X') xCount++;
-                else if (this.gameState[index] === 'O') oCount++;
+                if (this.gameState.get(index) === 'X') xCount++;
+                else if (this.gameState.get(index) === 'O') oCount++;
 
                 if (xCount === 3) return 'X';
                 else if (oCount === 3) return 'O';
@@ -91,7 +92,7 @@ export class Game {
         // if it's not that player's turn
         if (this.currentTurnPlayer !== player) return false;
         // if the field has already been taken by a player, it can't be taken anymore
-        if (this.gameState[fieldIndex]) return false;
+        if (this.gameState.get(fieldIndex)) return false;
         // if the field's index is outside the field (outside 1-9)
         if (fieldIndex < 1 || fieldIndex > 9) return false;
 
