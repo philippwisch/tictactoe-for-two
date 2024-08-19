@@ -60,6 +60,7 @@ io.on("connection", (socket => {
     })
 
     socket.on("declare move", move => {
+        console.log("declare move: " + move);
         if(!currentGame) return;
         
         const player = players.get(socket).role;
@@ -67,11 +68,8 @@ io.on("connection", (socket => {
 
         console.log(result);
         if(result.valid) {
-            io.emit('player move', player, move);
-
-            if(result.gameOver || result.winner) {
-                // handle gameOver here
-            }
+            io.emit('player move', player, move, result.roundOver, result.winner);
+            // TODO if roundOver, start new round
         }
     })
 }))

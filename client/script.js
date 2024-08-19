@@ -8,18 +8,17 @@ window.onload = function () {
     const top = document.getElementById("top");
     const bottom = document.getElementById("bottom");
 
+    let game;
     let whoAmI;
     let wins = 0;
     let losses = 0;
-    let game;
 
     boxes.forEach(box => {
         box.addEventListener('click', (event) => {
-
-            // TODO check if move can be made, use game.js
-            // if that comes back positive, change it immedietaly to make it look more responsive. Server can still overwrite it theoretically later if needed
-            // which it wont be without tampering anyway
-            socket.emit('declare move', event.target.id);
+            // check if the move would be valid, to avoid sending unnecessary requests
+            if (game.isValidTurn(whoAmI, event.target.id)) {
+                socket.emit('declare move', event.target.id);
+            }
         })
     })
 
@@ -29,24 +28,30 @@ window.onload = function () {
         document.body.appendChild(document.createTextNode(msg));
     })
 
-    socket.on('game start', (role, activePlayer) => {
-        console.log("game start");
-        // TODO needs a delay to show prev result for like 1 second
-        // clear the board
-        clearGameboard();
-        whoAmI = role; // keep track of whether you are X or O
-        game = new Game(activePlayer);
-        updateTop();
-    });
-
     socket.on('opponent left', (msg) => {
         top.innerHTML = msg;
     })
 
-    socket.on('player move', (player, move) => {
-        boxes[move - 1].innerHTML = player;
+    socket.on('game start', (role, activePlayer) => {
+        console.log("game start");
+        game = new Game(activePlayer);
+        whoAmI = role;
+
+        clearGameboard();
+        updateWhoseTurnDisplay();
+    });
+
+    socket.on('player move', (player, move, roundOver, winner) => {
+        console.log("player move: " + player + " " + move + " " + roundOver + " " + winner);
+        // sync local gamestate with server's gamestate
         game.takeTurn(player, move);
-        updateTop();
+        boxes[move - 1].innerHTML = player;
+
+        if (roundOver) {
+            // TODO handle roundover
+        } else {
+            updateWhoseTurnDisplay();
+        }
     })
 
     function clearGameboard() {
@@ -55,7 +60,7 @@ window.onload = function () {
         })
     }
 
-    function updateTop() {
+    function updateWhoseTurnDisplay() {
         // display whose turn it is
         if (whoAmI === game.currentTurnPlayer) {
             top.innerHTML = "Your turn";

@@ -29,7 +29,7 @@ export class Game {
     constructor(startingPlayer = undefined) {
         // keeps track of where players put "X" and "O". Looks like: {1: "X", 7: "O", 2: "X"}
         this.gameState = {};
-        this.gameOver = false;
+        this.roundOver = false;
         this.winner = null;
         // if the starting player is not provided or is not 'X' or 'O', it picks a random player as a fallback
         this.currentTurnPlayer = (startingPlayer === 'X' || startingPlayer === 'O') ? startingPlayer : Game.pickRandomPlayer();
@@ -43,9 +43,9 @@ export class Game {
             this.winner = this.checkForWinner();
 
             if (this.winner) {
-                this.gameOver = true;
+                this.roundOver = true;
             } else {
-                this.gameOver = this.isGameboardFull();
+                this.roundOver = this.isGameboardFull();
             }
 
             // after player 1 takes their turn, it's player 2's turn
@@ -54,7 +54,7 @@ export class Game {
 
         return {
             valid,
-            gameOver: this.gameOver,
+            roundOver: this.roundOver,
             winner: this.winner
         }
     }
@@ -85,7 +85,7 @@ export class Game {
 
     isValidTurn(player, fieldIndex) {
         // if the game is over
-        if (this.gameOver) return false;
+        if (this.roundOver) return false;
         // if the player is not assigned either 'O' or 'X'
         if (!(player === 'X' || player === 'O')) return false;
         // if it's not that player's turn
