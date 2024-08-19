@@ -36,14 +36,12 @@ window.onload = function () {
     })
 
     socket.on('game start', (role, startingPlayer) => {
-        console.log("game start");
         whoAmI = role; // 'X' or 'O' - does not change between game rounds
         startNewRound(startingPlayer);
     });
 
     // TODO split this function up for better readability
     socket.on('player move', (player, move, roundOver, winner, nextRoundStartingPlayer) => {
-        console.log("player move: " + player + " " + move + " " + roundOver + " " + winner + " " + nextRoundStartingPlayer);
         // sync local gamestate with server's gamestate
         game.takeTurn(player, move);
         // display move on the gameboard

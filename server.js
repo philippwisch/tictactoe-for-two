@@ -54,21 +54,16 @@ io.on("connection", (socket => {
     }
 
     socket.on("disconnect", () => {
-        console.log("user disconnected!");
+        console.log("user disconnected");
         removePlayer(socket);
         endGame();
     })
 
     socket.on("declare move", move => {
-        // DEBUG //
-        console.log("declare move: " + move);
         if(!currentGame) return;
         
         const player = players.get(socket).role;
         let result = currentGame.takeTurn(player, move);
-
-        // DEBUG //
-        console.log("result from last turn: " + result);
 
         if(result.valid) {
             io.emit('player move', player, move, result.roundOver, result.winner, Game.getOpponent(whoStartedGameround));
